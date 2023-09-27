@@ -71,6 +71,16 @@ public class Tank : ICollidable
 
     public void Update(GameTime gameTime)
     {
+        KeySense();
+        
+        Position += Vector3.Transform(Vector3.Forward, _rotacion) * _velocidad * gameTime.ElapsedGameTime.Milliseconds;
+        Move(Position,_rotacion);
+        _velocidad = Math.Max(0, _velocidad-0.008f);
+        
+    }
+
+    public void KeySense()
+    {
         if (Keyboard.GetState().IsKeyDown(Keys.W))
         {
             // Avanzo
@@ -84,17 +94,13 @@ public class Tank : ICollidable
         if (Keyboard.GetState().IsKeyDown(Keys.A))
         {
             // Giro izq
-            _rotacion *= Matrix.CreateRotationY(0.04f);
+            _rotacion *= Matrix.CreateRotationY(0.02f);
         }
         if (Keyboard.GetState().IsKeyDown(Keys.D))
         {
             // Giro der
-            _rotacion *= Matrix.CreateRotationY(-0.04f);
+            _rotacion *= Matrix.CreateRotationY(-0.02f);
         }
-        
-        Position += Vector3.Transform(Vector3.Forward, _rotacion) * _velocidad * gameTime.ElapsedGameTime.Milliseconds;
-        Move(Position,_rotacion);
-        _velocidad = Math.Max(0, _velocidad-0.008f);
     }
 
     public void Move(Vector3 position, Matrix rotation)
