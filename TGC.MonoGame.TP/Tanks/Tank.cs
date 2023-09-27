@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Collisions;
 using TGC.MonoGame.TP.References;
 
@@ -13,12 +14,20 @@ public class Tank : ICollidable
     private Model Model;
     private ModelReference Reference;
     private Effect Effect;
-    private Matrix World;
+    private Vector3 Position;
+    public Matrix World;
 
+    private float _velocidad;
+    private Matrix _rotacion;
+    
     public Tank(ModelReference model, Vector3 position)
     {
         Reference = model;
+        Position = position;
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * Matrix.CreateTranslation(position);
+        
+        _velocidad = 0;
+        _rotacion = Matrix.Identity;
     }
 
     public void Load(ContentManager content, Effect effect)
@@ -58,5 +67,38 @@ public class Tank : ICollidable
     {
         Console.WriteLine("Chocaste con prop grande");
         // TODO frenar el tanque del todo
+    }
+
+    public void Update(GameTime gameTime)
+    {
+        if (Keyboard.GetState().IsKeyDown(Keys.W))
+        {
+            // Avanzo
+            _velocidad += 0.01f;
+        }
+        if (Keyboard.GetState().IsKeyDown(Keys.S))
+        {
+            // Retrocedo
+            _velocidad -= 0.01f;
+        }
+        if (Keyboard.GetState().IsKeyDown(Keys.A))
+        {
+            // Giro izq
+            _rotacion *= Matrix.CreateRotationY(0.04f);
+        }
+        if (Keyboard.GetState().IsKeyDown(Keys.D))
+        {
+            // Giro der
+            _rotacion *= Matrix.CreateRotationY(-0.04f);
+        }
+        
+        Position += Vector3.Transform(Vector3.Forward, _rotacion) * _velocidad * gameTime.ElapsedGameTime.Milliseconds;
+        Move(Position,_rotacion);
+        _velocidad = Math.Max(0, _velocidad-0.008f);
+    }
+
+    public void Move(Vector3 position, Matrix rotation)
+    {
+        World = rotation * Matrix.CreateTranslation(position) * Matrix.CreateScale(Reference.Scale);
     }
 }

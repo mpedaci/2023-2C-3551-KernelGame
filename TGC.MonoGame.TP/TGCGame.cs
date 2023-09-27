@@ -6,6 +6,7 @@ using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
 using TGC.MonoGame.TP.Maps;
 using TGC.MonoGame.TP.References;
+using TGC.MonoGame.TP.Tanks;
 
 namespace TGC.MonoGame.TP
 {
@@ -50,8 +51,8 @@ namespace TGC.MonoGame.TP
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
-            Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
-            
+            //Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
+            Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
             Map = new Desert(15, Models.Tank.KF51, Models.Tank.T90);
             
             // Configuramos nuestras matrices de la escena.
@@ -94,8 +95,8 @@ namespace TGC.MonoGame.TP
                 //Salgo del juego.
                 Exit();
             }
-            
-            Camera.Update(gameTime);
+
+            Camera.Update(gameTime,Map.Player.World);
             Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
             Map.Update(gameTime);
             base.Update(gameTime);

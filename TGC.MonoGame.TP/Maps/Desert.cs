@@ -15,7 +15,6 @@ namespace TGC.MonoGame.TP.Maps;
 public class Desert : Map
 {
     protected Scenary Scenary { get; }
-    protected Tank Player { get; }
     protected List<Tank> Enemies { get; } = new List<Tank>();
     protected List<Tank> Alies { get; } = new List<Tank>();
     protected List<StaticProp> Props { get; } = new List<StaticProp>();
@@ -23,6 +22,7 @@ public class Desert : Map
     public Desert(int numberOfTanks, ModelReference AliesTank, ModelReference EnemiesTank)
     {
         Scenary = new Scenary(Models.Scenary.Plane, new Vector3(-0.1f,-0.1f,-0.1f));
+        Player = new Tank(AliesTank,new Vector3(0,0,0));
         Scenary.GetSpawnPoints(numberOfTanks, false)
             .ForEach(spawnPoint => Alies.Add(new Tank(EnemiesTank, spawnPoint)));
         Scenary.GetSpawnPoints(numberOfTanks, true)
@@ -41,6 +41,7 @@ public class Desert : Map
     public override void Load(ContentManager content, Effect effect)
     {
         Scenary.Load(content, effect);
+        Player.Load(content,effect);
         foreach (var enemy in Enemies)
             enemy.Load(content, effect);
         foreach (var alie in Alies)
@@ -51,12 +52,14 @@ public class Desert : Map
 
     public override void Update(GameTime gameTime)
     {
+        Player.Update(gameTime);
         return;
     }
 
     public override void Draw(Matrix view, Matrix projection)
     {
         Scenary.Draw(view, projection);
+        Player.Draw(view,projection);
         foreach (var enemy in Enemies)
             enemy.Draw(view, projection);
         foreach (var alie in Alies)
