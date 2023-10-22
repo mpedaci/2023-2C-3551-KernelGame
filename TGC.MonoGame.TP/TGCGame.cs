@@ -1,12 +1,13 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TGC.MonoGame.TP.Cameras;
+using TGC.MonoGame.TP.Helpers.Collisions;
+using TGC.MonoGame.TP.Helpers.Gizmos;
 using TGC.MonoGame.TP.Maps;
-using TGC.MonoGame.TP.References;
-using TGC.MonoGame.TP.Tanks;
+using TGC.MonoGame.TP.Types;
+using TGC.MonoGame.TP.Utils.Models;
 
 namespace TGC.MonoGame.TP
 {
@@ -19,11 +20,16 @@ namespace TGC.MonoGame.TP
     {
         private GraphicsDeviceManager Graphics { get; }
         private SpriteBatch SpriteBatch { get; set; }
-        private Effect Effect { get; set; }
+
+        /* Debuggin */
+        private const bool FreeCamera = true;
+        private const bool DrawBoundingBoxes = true;
+
+        /* ESTO DEBERIA IR A LOS MAPAS */
         private Map Map { get; set; }
         private Camera Camera { get; set; }
-        public Gizmos.Gizmos Gizmos { get; }
-        
+        private Gizmos Gizmos { get; set; }
+
         /// <summary>
         ///     Constructor del juego.
         /// </summary>
@@ -39,8 +45,6 @@ namespace TGC.MonoGame.TP
             Content.RootDirectory = "Content";
             // Hace que el mouse sea visible.
             IsMouseVisible = true;
-            
-            Gizmos = new Gizmos.Gizmos();
         }
 
         /// <summary>
@@ -51,10 +55,17 @@ namespace TGC.MonoGame.TP
         {
             // La logica de inicializacion que no depende del contenido se recomienda poner en este metodo.
 
-            //Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
-            Camera = new FollowCamera(GraphicsDevice.Viewport.AspectRatio);
-            Map = new Desert(15, Models.Tank.KF51, Models.Tank.T90);
-            
+
+            Gizmos = new Gizmos();
+
+            if (FreeCamera)
+                Camera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f, 1f);
+            else
+                Camera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f, Vector3.Zero);
+
+            Map = new PlaneMap(5, Tanks.T90, Tanks.T90V2);
+
+            // Mouse.SetPosition(Graphics.PreferredBackBufferWidth / 2, Graphics.PreferredBackBufferHeight / 2);
             // Configuramos nuestras matrices de la escena.
             base.Initialize();
         }
@@ -71,12 +82,9 @@ namespace TGC.MonoGame.TP
 
             // Cargo un efecto basico propio declarado en el Content pipeline.
             // En el juego no pueden usar BasicEffect de MG, deben usar siempre efectos propios.
-            Effect = Content.Load<Effect>(Effects.BasicShader.Path);
-            
-            Map.Load(Content, Effect);
-            
-            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, "Content"));
 
+            Map.Load(Content);
+            Gizmos.LoadContent(GraphicsDevice, new ContentManager(Content.ServiceProvider, Content.RootDirectory));
             base.LoadContent();
         }
 
@@ -88,17 +96,17 @@ namespace TGC.MonoGame.TP
         protected override void Update(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logica de actualizacion del juego.
-
+            var keyboardState = Keyboard.GetState();
             // Capturar Input teclado
-            if (Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (keyboardState.IsKeyDown(Keys.Escape))
             {
                 //Salgo del juego.
                 Exit();
             }
 
-            Camera.Update(gameTime,Map.Player.World);
-            Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
             Map.Update(gameTime);
+            Camera.Update(gameTime, Map.Player);
+            Gizmos.UpdateViewProjection(Camera.View, Camera.Projection);
             base.Update(gameTime);
         }
 
@@ -109,9 +117,25 @@ namespace TGC.MonoGame.TP
         protected override void Draw(GameTime gameTime)
         {
             // Aca deberiamos poner toda la logia de renderizado del juego.
-            GraphicsDevice.Clear(Color.White);
+            GraphicsDevice.Clear(Color.CornflowerBlue);
             Map.Draw(Camera.View, Camera.Projection);
+
+            if (DrawBoundingBoxes)
+                DrawBoundingBoxesDebug();
+
             Gizmos.Draw();
+        }
+
+        private void DrawBoundingBoxesDebug()
+        {
+            foreach (var prop in Map.Props)
+                Gizmos.DrawCube((prop.Box.Max + prop.Box.Min) / 2f, prop.Box.Max - prop.Box.Min, Color.Red);
+                // Gizmos.DrawCube(prop.World, Color.Red);
+            foreach (var enemy in Map.Enemies)
+                Gizmos.DrawCube(enemy.OBBWorld, Color.DeepPink);
+            foreach (var ally in Map.Alies)
+                Gizmos.DrawCube(ally.OBBWorld, Color.HotPink);
+            Gizmos.DrawCube(Map.Player.OBBWorld, Color.Aqua);
         }
 
         /// <summary>
