@@ -119,6 +119,13 @@
 /processorParam:TextureFormat=Compressed
 /build:Fonts/Stencil16.spritefont
 
+#begin Fonts/Stencil72.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:Fonts/Stencil72.spritefont
+
 #begin Fonts/Verdana16.spritefont
 /importer:FontDescriptionImporter
 /processor:FontDescriptionProcessor

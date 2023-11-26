@@ -11,8 +11,8 @@ public class ScreenTime : ScreenText
     private float _currentGameTime;
     private float _timeLimit;
 
-    internal override Vector2 LogoLocation() => new Vector2(ScreenWidth/2f - Logo.Width/3.5f, ScreenHeight/10f);
-    internal override Vector2 TextLocation() => new Vector2(ScreenWidth/2f, ScreenHeight/10f);
+    internal override Vector2 LogoLocation() => new Vector2(ScreenWidth/2f - Logo.Width/4f, ScreenHeight/10f);
+    internal override Vector2 TextLocation() => new Vector2(ScreenWidth/2f, ScreenHeight/12f);
     internal override string TextToDraw() => TimeToString(_currentGameTime);
 
     public ScreenTime(GraphicsDevice graphicsDevice, float timeLimit) : base(graphicsDevice)
@@ -32,6 +32,8 @@ public class ScreenTime : ScreenText
     public void Update(GameTime gameTime)
     {
         _currentGameTime -= (float) gameTime.ElapsedGameTime.TotalSeconds;
+        if(_currentGameTime < 0)
+            _currentGameTime = 0;
     }
 
     public string TimeToString(float time)
@@ -45,6 +47,11 @@ public class ScreenTime : ScreenText
             secondsString = "0" + secondsString;
         
         return minutes.ToString("0") + ":" + secondsString;
+    }
+    
+    public bool HasEnded()
+    {
+        return _currentGameTime <= 0;
     }
     
     public void Reset()

@@ -85,8 +85,8 @@ namespace TGC.MonoGame.TP
             BoundingFrustum = new BoundingFrustum(PlayerCamera.View * PlayerCamera.Projection);
 
             TimeSinceLastChange = 0f;
-            ScreenTime = new ScreenTime(GraphicsDevice, 180f);
-            Score = new Score(GraphicsDevice);
+            ScreenTime = new ScreenTime(GraphicsDevice, 10f);
+            Score = new Score(GraphicsDevice, 1);
             
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             
@@ -117,6 +117,18 @@ namespace TGC.MonoGame.TP
                 GameState.CurrentStatus != GameStatus.Exit)
             {
                 GameState.Set(GameStatus.MainMenu);
+                TimeSinceLastChange = 0f;
+            }
+            
+            if (Score.HasWon())
+            {
+                GameState.Set(GameStatus.WinMenu);
+                TimeSinceLastChange = 0f;
+            }
+            
+            if(ScreenTime.HasEnded() && !Score.HasWon())
+            {
+                GameState.Set(GameStatus.DeathMenu);
                 TimeSinceLastChange = 0f;
             }
 
@@ -165,7 +177,7 @@ namespace TGC.MonoGame.TP
                         GameState.FirstUpdate = false;
                     }
                     ScreenTime.Update(gameTime);
-                    Score.Update(100000f + (float)gameTime.ElapsedGameTime.TotalSeconds);
+                    Score.Update(Map.Tanks);
                     Map.Update(gameTime);
                     TargetLightCamera.Position = Map.SkyDome.LightPosition;
                     TargetLightCamera.BuildView();

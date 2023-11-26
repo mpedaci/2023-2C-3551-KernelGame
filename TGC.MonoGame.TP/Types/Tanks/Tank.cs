@@ -69,8 +69,9 @@ public class Tank : Resource, ICollidable
     public List<Vector3> ImpactDirections { get; set; } = new();
 
     // Health
-    public int health { get; set; } = 5;
+    public int Health { get; set; } = 5;
     public bool curandose { get; set; } = true;
+    public int Deaths { get; set; } = 0;
 
     // HUD
     public TankHUD TankHud { get; set; }
@@ -108,7 +109,6 @@ public class Tank : Resource, ICollidable
     public override void Load(ContentManager contentManager)
     {
         // base.Load(contentManager);
-
         Model = contentManager.Load<Model>(Reference.Path);
         Effect = contentManager.Load<Effect>(Effects.DeformationShader.Path);
         TexturesRepository.InitializeTextures(Reference.DrawReference, contentManager);
@@ -193,8 +193,10 @@ public class Tank : Resource, ICollidable
         // Bullets
         Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.Update(gameTime));
         
-        if (health <= 0)
+        if (Health <= 0)
+        {
             Respawn();
+        }
         
         if (hasShot)
         {
@@ -218,9 +220,10 @@ public class Tank : Resource, ICollidable
     
     public void Respawn()
     {
+        Deaths += 1;
         Action.Respawn(this);
         Position = RespawnPosition;
-        health = 5;
+        Health = 5;
         Angle = 0f;
         Velocidad = 0f;
         shootTime = 2.5f;
@@ -320,13 +323,13 @@ public class Tank : Resource, ICollidable
     // ICollidable
     public void CollidedWithSmallProp()
     {
-        Console.WriteLine($"Chocaste con prop chico {DateTime.Now}");
+        //Console.WriteLine($"Chocaste con prop chico {DateTime.Now}");
         Velocidad *= 0.5f;
     }
     
     public void CollidedWithLargeProp()
     {
-        Console.WriteLine($"Chocaste con prop grande {DateTime.Now}");
+        //Console.WriteLine($"Chocaste con prop grande {DateTime.Now}");
         Velocidad = 0;
         Position = LastPosition;
     }
@@ -345,8 +348,14 @@ public class Tank : Resource, ICollidable
             ImpactPositions.Add(bullet.Position);
             ImpactDirections.Add(bullet.Direction);
             bullet.IsAlive = false;
-            health -= 1;
-            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " + health);
+            Health -= 1;
+            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " + Health);
         }
+    }
+    
+    public void ResetDeaths()
+    {
+        Console.WriteLine("Reseteando muertes");
+        Deaths = 0;
     }
 }
