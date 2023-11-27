@@ -312,7 +312,7 @@ public class Tank : Resource, ICollidable
             Effect.Parameters["View"]?.SetValue(camera.View);
 
             Effect.Parameters["Projection"].SetValue(camera.Projection);
-            if (!modelMesh.ParentBone.Name.Contains("Wheel"))
+            if (modelMesh.Name == "Hull")
             {
                 Effect.Parameters["ImpactPositions"]?.SetValue(this.ImpactPositions.ToArray());
                 Effect.Parameters["ImpactDirections"]?.SetValue(this.ImpactDirections.ToArray());

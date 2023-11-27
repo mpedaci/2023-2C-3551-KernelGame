@@ -23,7 +23,7 @@ public abstract class Map
 
     public abstract void Draw(Camera camera, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice,
         Camera TargetLightCamera, BoundingFrustum BoundingFrustum);
-    public abstract void Update(GameTime gameTime);
+    public abstract void Update(GameTime gameTime, bool godMode = false);
     
     public void LoadLimits()
     {

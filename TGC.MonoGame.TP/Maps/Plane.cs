@@ -108,7 +108,7 @@ public class PlaneMap : Map
         LoadLimits();
     }
 
-    public override void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime, bool godMode = false)
     {
         List<Tank> AllyTanks = Tanks.Where(tank => tank.Action.isEnemy == false).ToList();
         List<Tank> EnemiesTanks = Tanks.Where(tank => tank.Action.isEnemy).ToList();
@@ -122,8 +122,27 @@ public class PlaneMap : Map
         foreach (var tank in Tanks)
             tank.Update(gameTime);
         
+        if (godMode)
+        {
+            AllyTanks.RemoveAll(t => t.Action is PlayerActionTank);
+        }
+
+        
         AllyBullets.ForEach(bullet => EnemiesTanks.ForEach(tank => tank.CheckCollisionWithBullet(bullet)));
-        EnemiesBullets.ForEach(bullet => AllyTanks.ForEach(tank => tank.CheckCollisionWithBullet(bullet)));
+        EnemiesBullets.ForEach(bullet => AllyTanks.ForEach(tank =>
+        {
+            if (!godMode)
+            {
+                tank.CheckCollisionWithBullet(bullet);
+            }
+            else
+            {
+                if (tank.Action is not PlayerActionTank)
+                {
+                    tank.CheckCollisionWithBullet(bullet);
+                }
+            }
+        }));
 
         foreach (var limit in Limits)
         {

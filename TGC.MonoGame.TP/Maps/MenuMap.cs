@@ -61,7 +61,7 @@ public class MenuMap : Map
         SkyDome.Load(graphicsDevice, content);
     }
     
-    public override void Update(GameTime gameTime)
+    public override void Update(GameTime gameTime, bool godMode = false)
     {
         SkyDome.Update(gameTime);
     }

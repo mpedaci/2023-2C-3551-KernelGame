@@ -115,7 +115,7 @@ ShadowedVertexShaderOutput MainVS(in ShadowedVertexShaderInput input)
         if(i >= Impacts)
             break;
         Distance = distance(input.Position.xyz, ImpactPositions[i]);
-        mask = step(Distance, 1.25);
+        mask = step(Distance, 0.75);
         input.Position.xyz = lerp(input.Position.xyz, input.Position.xyz + ImpactDirections[i], mask);
     }
     

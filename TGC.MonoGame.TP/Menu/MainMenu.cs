@@ -44,6 +44,7 @@ public class MainMenu
             {
                 new ("Nuevo Juego", GameStatus.NormalGame),
                 new ("Modo Dios", GameStatus.GodModeGame),
+                new ("Debug", GameStatus.DebugModeGame),
                 new ("Salir", GameStatus.Exit),
             };
             Buttons = new ButtonsGrid(gameState, _screenWidth/2, _screenHeight/2, buttons);

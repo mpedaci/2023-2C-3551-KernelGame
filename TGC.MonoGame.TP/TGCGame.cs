@@ -86,7 +86,7 @@ namespace TGC.MonoGame.TP
 
             TimeSinceLastChange = 0f;
             ScreenTime = new ScreenTime(GraphicsDevice, 120f);
-            Score = new Score(GraphicsDevice, 10);
+            Score = new Score(GraphicsDevice, 5);
             
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             
@@ -132,13 +132,13 @@ namespace TGC.MonoGame.TP
                 Score.Reset();
             }
             
-            if (Score.HasWon() && GameState.CurrentStatus is GameStatus.NormalGame)
+            if (Score.HasWon() && GameState.CurrentStatus is GameStatus.NormalGame or GameStatus.GodModeGame)
             {
                 GameState.Set(GameStatus.WinMenu);
                 TimeSinceLastChange = 0f;
             }
             
-            if(ScreenTime.HasEnded() && !Score.HasWon() && GameState.CurrentStatus is GameStatus.NormalGame)
+            if(ScreenTime.HasEnded() && !Score.HasWon() && GameState.CurrentStatus is GameStatus.NormalGame or GameStatus.GodModeGame)
             {
                 GameState.Set(GameStatus.DeathMenu);
                 TimeSinceLastChange = 0f;
@@ -174,6 +174,8 @@ namespace TGC.MonoGame.TP
             if (keyboardState.IsKeyDown(Keys.F2) && TimeSinceLastChange > 0.5f)
                 GameState.Set(GameStatus.NormalGame);
             if (keyboardState.IsKeyDown(Keys.F3) && TimeSinceLastChange > 0.5f)
+                GameState.Set(GameStatus.DebugModeGame);
+            if (keyboardState.IsKeyDown(Keys.F4) && TimeSinceLastChange > 0.5f)
                 GameState.Set(GameStatus.GodModeGame);
 
             switch (GameState.CurrentStatus)
@@ -199,6 +201,21 @@ namespace TGC.MonoGame.TP
                     BoundingFrustum.Matrix = OptimizationCamera.View * OptimizationCamera.Projection;
                     break;
                 case GameStatus.GodModeGame:
+                    if (GameState.FirstUpdate)
+                    {
+                        Menu.Dispose();
+                        GameState.FirstUpdate = false;
+                    }
+                    ScreenTime.Update(gameTime);
+                    Score.Update(Map.Tanks);
+                    Map.Update(gameTime, true);
+                    TargetLightCamera.Position = Map.SkyDome.LightPosition;
+                    TargetLightCamera.BuildView();
+                    PlayerCamera.Update(gameTime, Map.Player);
+                    OptimizationCamera.Update(gameTime, Map.Player);
+                    BoundingFrustum.Matrix = OptimizationCamera.View * OptimizationCamera.Projection;
+                    break;
+                case GameStatus.DebugModeGame:
                     if (GameState.FirstUpdate)
                     {
                         Menu.Dispose();
@@ -243,6 +260,12 @@ namespace TGC.MonoGame.TP
                     Score.Draw();
                     break;
                 case GameStatus.GodModeGame:
+                    GraphicsDevice.Clear(Color.CornflowerBlue);
+                    Map.Draw(PlayerCamera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, BoundingFrustum);
+                    ScreenTime.Draw();
+                    Score.Draw();
+                    break;
+                case GameStatus.DebugModeGame:
                     GraphicsDevice.Clear(Color.CornflowerBlue);
                     Map.Draw(DebugCamera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, BoundingFrustum);
                     DrawBoundingBoxesDebug();

@@ -7,6 +7,7 @@ public enum GameStatus
     WinMenu,
     NormalGame,
     GodModeGame,
+    DebugModeGame,
     Exit,
 }
 
