@@ -35,7 +35,6 @@ public class ScreenTime : ScreenText
         if(_currentGameTime < 0)
             _currentGameTime = 0;
     }
-
     public string TimeToString(float time)
     {
         var minutes = (int) time / 60;

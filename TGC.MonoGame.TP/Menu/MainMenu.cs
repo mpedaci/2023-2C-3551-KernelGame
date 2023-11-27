@@ -59,11 +59,14 @@ public class MainMenu
             Buttons.LoadContent(content);
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(GameStatus gameStatus, GameTime gameTime)
         {
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            _menuMap.Update(gameTime);
-            Buttons.Update(Mouse.GetState());
+            if (gameStatus == GameStatus.MainMenu)
+            {
+                _menuMap.Update(gameTime);
+                Buttons.Update(Mouse.GetState());
+            }
         }
         
         public void Draw(GameStatus gameStatus, RenderTarget2D ShadowMapRenderTarget, Camera TargetLightCamera, BoundingFrustum BoundingFrustum)
@@ -95,7 +98,12 @@ public class MainMenu
                     text = "Perdiste!";
                 }
                 var size = Font.MeasureString(text);
-                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth/2f - size.X/2), _screenHeight * 1/2f), Color.Red);
+                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth/2f - size.X/2), 20f), Color.DarkRed, 0f, Vector2.Zero, 1f,
+                    SpriteEffects.None, 0);
+                text = "Pulse espacio para volver al menu principal";
+                size = Font.MeasureString(text);
+                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth/2f - size.X/2), 20f + 50f), Color.DarkRed, 0f, Vector2.Zero, 1f,
+                    SpriteEffects.None, 0);
             }
             SpriteBatch.End();
             if (gameStatus == GameStatus.MainMenu)

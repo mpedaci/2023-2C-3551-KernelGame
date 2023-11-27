@@ -35,4 +35,10 @@ public abstract class Map
             Limits.Add(new BoundingBox(min, max));
         });
     }
+
+    public void Reset()
+    {   
+        Tanks.ForEach(tank => tank.Reset());
+        Props.ForEach(prop => prop.Reset());
+    }
 }

@@ -196,7 +196,7 @@ public class Tank : Resource, ICollidable
         // Bullets
         Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.Update(gameTime));
 
-        if (health <= 0)
+        if (Health <= 0)
             Respawn();
 
         if (hasShot)
@@ -362,9 +362,9 @@ public class Tank : Resource, ICollidable
             var impactDir = Vector3.Transform(bullet.Direction, Matrix.CreateRotationY(Angle));
             ImpactDirections.Add(new Vector3(impactDir.X * -1, impactDir.Y, impactDir.Z * -1));
             bullet.IsAlive = false;
-            health -= 1;
+            Health -= 1;
             Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " +
-                              health);
+                              Health);
         }
     }
 
@@ -439,5 +439,19 @@ public class Tank : Resource, ICollidable
                 Velocidad = Math.Min(-0.0001f, Velocidad);
             Velocidad *= -0.75f;
         }
+    }
+
+    public void Reset()
+    {
+        Position = RespawnPosition;
+        Health = 5;
+        Angle = 0f;
+        Velocidad = 0f;
+        shootTime = 2.5f;
+        hasShot = true;
+        Deaths = 0;
+
+        ImpactDirections.Clear();
+        ImpactPositions.Clear();
     }
 }

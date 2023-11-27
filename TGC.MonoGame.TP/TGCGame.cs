@@ -85,8 +85,8 @@ namespace TGC.MonoGame.TP
             BoundingFrustum = new BoundingFrustum(PlayerCamera.View * PlayerCamera.Projection);
 
             TimeSinceLastChange = 0f;
-            ScreenTime = new ScreenTime(GraphicsDevice, 10f);
-            Score = new Score(GraphicsDevice, 1);
+            ScreenTime = new ScreenTime(GraphicsDevice, 120f);
+            Score = new Score(GraphicsDevice, 10);
             
             SpriteBatch = new SpriteBatch(GraphicsDevice);
             
@@ -118,15 +118,27 @@ namespace TGC.MonoGame.TP
             {
                 GameState.Set(GameStatus.MainMenu);
                 TimeSinceLastChange = 0f;
+                ScreenTime.Reset();
+                Map.Reset();
+                Score.Reset();
             }
             
-            if (Score.HasWon())
+            if (keyboardState.IsKeyDown(Keys.Space) && GameState.CurrentStatus is GameStatus.DeathMenu or GameStatus.WinMenu && TimeSinceLastChange > 0.5f)
+            {
+                GameState.Set(GameStatus.MainMenu);
+                TimeSinceLastChange = 0f;
+                ScreenTime.Reset();
+                Map.Reset();
+                Score.Reset();
+            }
+            
+            if (Score.HasWon() && GameState.CurrentStatus is GameStatus.NormalGame)
             {
                 GameState.Set(GameStatus.WinMenu);
                 TimeSinceLastChange = 0f;
             }
             
-            if(ScreenTime.HasEnded() && !Score.HasWon())
+            if(ScreenTime.HasEnded() && !Score.HasWon() && GameState.CurrentStatus is GameStatus.NormalGame)
             {
                 GameState.Set(GameStatus.DeathMenu);
                 TimeSinceLastChange = 0f;
@@ -157,17 +169,17 @@ namespace TGC.MonoGame.TP
                 MediaPlayer.Play(Song);
             }
 
-            if (keyboardState.IsKeyDown(Keys.F1))
+            if (keyboardState.IsKeyDown(Keys.F1) && TimeSinceLastChange > 0.5f)
                 GameState.Set(GameStatus.MainMenu);
-            if (keyboardState.IsKeyDown(Keys.F2))
+            if (keyboardState.IsKeyDown(Keys.F2) && TimeSinceLastChange > 0.5f)
                 GameState.Set(GameStatus.NormalGame);
-            if (keyboardState.IsKeyDown(Keys.F3))
+            if (keyboardState.IsKeyDown(Keys.F3) && TimeSinceLastChange > 0.5f)
                 GameState.Set(GameStatus.GodModeGame);
 
             switch (GameState.CurrentStatus)
             {
                 case GameStatus.MainMenu:
-                    Menu.Update(gameTime);
+                    Menu.Update(GameState.CurrentStatus, gameTime);
                     if (keyboardState.IsKeyDown(Keys.Escape) && TimeSinceLastChange > 0.5f)
                         GameState.Set(GameStatus.Exit);
                     break;
@@ -204,7 +216,7 @@ namespace TGC.MonoGame.TP
                     break;
                 case GameStatus.WinMenu:
                 case GameStatus.DeathMenu:
-                    Menu.Update(gameTime);
+                    Menu.Update(GameState.CurrentStatus, gameTime);
                     break;
                 case GameStatus.Exit:
                     Exit();

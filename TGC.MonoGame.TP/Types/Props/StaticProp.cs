@@ -53,4 +53,9 @@ public abstract class StaticProp : Resource
             CollidedWith(collidable);
     }
     public abstract void CollidedWith(ICollidable other);
+
+    public void Reset()
+    {
+        Destroyed = false;
+    }
 }

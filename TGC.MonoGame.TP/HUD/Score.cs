@@ -42,4 +42,9 @@ public class Score : ScreenText
     {
         return _score >= _limit;
     }
+    
+    public void Reset()
+    {
+        _score = 0;
+    }
 }
