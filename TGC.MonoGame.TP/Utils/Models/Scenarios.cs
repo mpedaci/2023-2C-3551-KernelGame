@@ -330,13 +330,16 @@ public class Scenarios
 
             #region Rocas Centro
 
-            new PropReference(Props.Rock0x3, new Vector3(0, 0, 0), PropType.Large, new Repetition(
-                6,
-                new FunctionCircular
+            new PropReference(Props.Rock0x3, new Vector3(0, 0, 0), PropType.Small, new Repetition(
+                25,
+                new FunctionSinusoidal()
                 {
-                    CenterX = 0f,
-                    CenterZ = 0f,
-                    Radius = 30f,
+                    StartX = 0f,
+                    StartZ = 150f,
+                    EndX = 0f,
+                    EndZ = -150f,
+                    Amplitude = 4f,
+                    UseX = true
                 }
             )),
 

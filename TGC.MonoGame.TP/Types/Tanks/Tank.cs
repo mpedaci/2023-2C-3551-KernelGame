@@ -41,7 +41,6 @@ public class Tank : Resource, ICollidable
 
     // Movement
     public float Velocidad;
-    public Vector3 LastPosition;
 
     // Torret
     public float pitch;
@@ -171,16 +170,20 @@ public class Tank : Resource, ICollidable
     }
 
     // UPDATE
-    
+
     public void Update(GameTime gameTime)
     {
         // Position
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        LastPosition = Position;
         var rotation = Matrix.CreateRotationY(Angle);
         Position += Vector3.Transform(Vector3.Forward, rotation) * Velocidad * elapsedTime;
         Translation = Matrix.CreateTranslation(Position);
-        Velocidad = Math.Max(0, Velocidad - Friction);
+        
+        if(Velocidad > 0)
+            Velocidad = Math.Max(0, Velocidad - Friction);
+        else
+            Velocidad = Math.Min(0, Velocidad + Friction);
+        
         World = Matrix.CreateScale(Reference.Scale) * Reference.Rotation * rotation * Translation;
 
         // Update Box
@@ -189,13 +192,13 @@ public class Tank : Resource, ICollidable
         OBBWorld = Matrix.CreateScale(Box.Extents * 2) * Box.Orientation * Translation;
 
         Action.Update(gameTime, this);
-        
+
         // Bullets
         Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.Update(gameTime));
-        
+
         if (health <= 0)
             Respawn();
-        
+
         if (hasShot)
         {
             shootTime -= elapsedTime * 0.0005f;
@@ -203,7 +206,7 @@ public class Tank : Resource, ICollidable
                 hasShot = false;
         }
     }
-    
+
     public void UpdateRotations()
     {
         var yawRadians = MathHelper.ToRadians(yaw);
@@ -215,7 +218,7 @@ public class Tank : Resource, ICollidable
         TurretRotation = turretRotation;
         CannonRotation = cannonRotation;
     }
-    
+
     public void Respawn()
     {
         Action.Respawn(this);
@@ -225,11 +228,11 @@ public class Tank : Resource, ICollidable
         Velocidad = 0f;
         shootTime = 2.5f;
         hasShot = true;
-        
+
         ImpactDirections.Clear();
         ImpactPositions.Clear();
     }
-    
+
     // DRAW
     public override void DrawOnShadowMap(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget,
         GraphicsDevice GraphicsDevice, Camera TargetLightCamera, bool modifyRootTransform = true)
@@ -247,11 +250,15 @@ public class Tank : Resource, ICollidable
                 .SetValue(worldMatrix * TargetLightCamera.View * TargetLightCamera.Projection);
             modelMesh.Draw();
         }
-        Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
+
+        Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet =>
+            bullet.DrawOnShadowMap(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
     }
 
-    public override void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget, GraphicsDevice GraphicsDevice,
-        Camera TargetLightCamera, List<Vector3> ImpactPositions = null, List<Vector3> ImpactDirections = null, bool modifyRootTransform = true)
+    public override void Draw(Camera camera, SkyDome skyDome, RenderTarget2D ShadowMapRenderTarget,
+        GraphicsDevice GraphicsDevice,
+        Camera TargetLightCamera, List<Vector3> ImpactPositions = null, List<Vector3> ImpactDirections = null,
+        bool modifyRootTransform = true)
     {
         turretBone.Transform = TurretRotation * turretTransform;
         cannonBone.Transform =
@@ -267,7 +274,7 @@ public class Tank : Resource, ICollidable
         }
 
         Model.Root.Transform = World;
-        
+
         Effect.CurrentTechnique = Effect.Techniques["DrawShadowedPCF"];
         Effect.Parameters["baseTexture"].SetValue((Reference.DrawReference as ShadowBlingPhongReference)?.Texture);
         Effect.Parameters["shadowMap"].SetValue(ShadowMapRenderTarget);
@@ -280,21 +287,21 @@ public class Tank : Resource, ICollidable
             foreach (var part in modelMesh.MeshParts)
                 part.Effect = Effect;
             var worldMatrix = modelMesh.ParentBone.Transform * World;
-            
+
             if (modelMesh.ParentBone.Name == leftTreadBone.Name)
             {
                 // Configuración cadena izquierda
                 Effect.Parameters["applyTextureScrolling"]?.SetValue(true);
-                Effect.Parameters["ScrollSpeed"]?.SetValue(LeftWheelRotation*0.125f);
+                Effect.Parameters["ScrollSpeed"]?.SetValue(LeftWheelRotation * 0.125f);
             }
-            
+
             if (modelMesh.ParentBone.Name == rightTreadBone.Name)
             {
                 // Configuración cadena derecha
                 Effect.Parameters["applyTextureScrolling"]?.SetValue(true);
-                Effect.Parameters["ScrollSpeed"]?.SetValue(RightWheelRotation*0.125f);
+                Effect.Parameters["ScrollSpeed"]?.SetValue(RightWheelRotation * 0.125f);
             }
-            
+
             Effect.Parameters["WorldViewProjection"].SetValue(worldMatrix * camera.View * camera.Projection);
             Effect.Parameters["World"].SetValue(worldMatrix);
             Effect.Parameters["InverseTransposeWorld"].SetValue(Matrix.Transpose(Matrix.Invert(worldMatrix)));
@@ -315,8 +322,9 @@ public class Tank : Resource, ICollidable
             modelMesh.Draw();
             Effect.Parameters["applyTextureScrolling"]?.SetValue(false);
         }
-        
-        Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet => bullet.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
+
+        Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet =>
+            bullet.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
         TankHud.Draw(camera.Projection);
     }
 
@@ -326,12 +334,15 @@ public class Tank : Resource, ICollidable
         Console.WriteLine($"Chocaste con prop chico {DateTime.Now}");
         Velocidad *= 0.5f;
     }
-    
+
     public void CollidedWithLargeProp()
     {
         Console.WriteLine($"Chocaste con prop grande {DateTime.Now}");
-        Velocidad = 0;
-        Position = LastPosition;
+        if (Velocidad > 0)
+            Velocidad = Math.Max(0.0001f, Velocidad);
+        else
+            Velocidad = Math.Min(-0.0001f, Velocidad);
+        Velocidad *= -0.75f;
     }
 
     public bool VerifyCollision(BoundingBox box)
@@ -351,16 +362,81 @@ public class Tank : Resource, ICollidable
             ImpactDirections.Add(new Vector3(impactDir.X * -1, impactDir.Y, impactDir.Z * -1));
             bullet.IsAlive = false;
             health -= 1;
-            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " + health);
+            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " +
+                              health);
         }
     }
-    
+
+    public void CollidedWithTank(float velocidad)
+    {
+        if (velocidad > 0)
+        {
+            if (Velocidad < 0)
+                Velocidad = velocidad;
+            else
+                Velocidad += velocidad;
+        }
+        else if (velocidad < 0)
+        {
+            if (Velocidad > 0)
+                Velocidad = velocidad;
+            else
+                Velocidad += velocidad;
+        }
+        else
+        {
+            Velocidad = -0.0001f;
+        }
+    }
+
+    public void CheckCollisionWithTank(Tank tank)
+    {
+        if (Box.Intersects(tank.Box))
+        {
+            var v = new Vector2(tank.World.Forward.X, tank.World.Forward.Z);
+            var vTank = new Vector2(World.Forward.X, World.Forward.Z);
+            var dot = (tank.World.Forward.X * World.Forward.X + tank.World.Forward.Z * World.Forward.Z);
+            var angleOfCollision = Math.Acos(dot / (v.Length() * vTank.Length()));
+            Console.WriteLine(tank.World.Forward + " - " + World.Forward);
+            Console.WriteLine(angleOfCollision);
+            if (angleOfCollision < MathHelper.PiOver4)
+            {
+                var vectorDistance = tank.Position - Position;
+                // el tanque que evalua esta atras del que llega por parametro
+                Boolean estaAtras = Vector3.Dot(vectorDistance, World.Forward) > 0;
+                if (estaAtras)
+                {
+                    CollidedWithTank(-(tank.Velocidad * 0.5f + 0.01f));
+                    tank.CollidedWithTank(Velocidad * 0.5f + 0.01f);
+                }
+                else
+                {
+                    CollidedWithTank(tank.Velocidad * 0.5f + 0.01f);
+                    tank.CollidedWithTank(-(Velocidad * 0.5f + 0.01f));
+                }
+            }
+            else if (angleOfCollision > MathHelper.PiOver4 + MathHelper.PiOver2)
+            {
+                CollidedWithTank(-(tank.Velocidad * 0.5f + 0.01f));
+                tank.CollidedWithTank(-(Velocidad * 0.5f + 0.01f));
+            }
+            else
+            {
+                CollidedWithTank(0);
+                tank.CollidedWithTank(0);
+            }
+        }
+    }
+
     public void CheckCollisionWithLimit(BoundingBox limit)
     {
         if (Box.Intersects(limit))
         {
-            Position = LastPosition;
-            Velocidad = 0;
+            if (Velocidad > 0)
+                Velocidad = Math.Max(0.0001f, Velocidad);
+            else
+                Velocidad = Math.Min(-0.0001f, Velocidad);
+            Velocidad *= -0.75f;
         }
     }
 }
