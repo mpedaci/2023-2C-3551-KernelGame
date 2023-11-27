@@ -32,12 +32,12 @@ public class AIActionTank : ActionTank
         List<Vector3> paths = new List<Vector3>();
         Vector3 positionXZ = new Vector3(tank.Position.X, 0f, tank.Position.Z);
 
-        if (tank.health <= 0)
+        if (tank.Health <= 0)
         {
             tank.Respawn();
         }
 
-        if (hasObjective && Objective.health <= 0)
+        if (hasObjective && Objective.Health <= 0)
         {
             hasObjective = false;
         }
@@ -108,7 +108,7 @@ public class AIActionTank : ActionTank
                 {
                     PossibleObjectives = PlaneMap.Tanks.Where(tank => tank.Action.isEnemy == false).ToList();
                     PossibleObjectives.Add(PlaneMap.Player);
-                    PossibleObjectives = PossibleObjectives.FindAll(tank => tank.health != 0);
+                    PossibleObjectives = PossibleObjectives.FindAll(tank => tank.Health != 0);
                 }
                 else
                 {

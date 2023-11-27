@@ -54,7 +54,7 @@ public class MainMenu
             _logo = content.Load<Texture2D>(Utils.Textures.Menu.MenuImage.Path);
             _winBackground = content.Load<Texture2D>(Utils.Textures.Menu.Win.Path);
             _gameOverBackground = content.Load<Texture2D>(Utils.Textures.Menu.GameOver.Path);
-            Font = content.Load<SpriteFont>($"{ContentFolder.Fonts}/Stencil16");
+            Font = content.Load<SpriteFont>($"{ContentFolder.Fonts}/Stencil72");
             _menuMap.Load(graphicsDevice, content);
             Buttons.LoadContent(content);
         }
@@ -75,32 +75,34 @@ public class MainMenu
                 _menuMap.Draw(_camera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, BoundingFrustum);
             }
             catch (Exception e) { }
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default; 
             SpriteBatch.Begin();
             var destRectangle = new Rectangle((_screenWidth - _logo.Width*2/3)/2,
                 _screenHeight/50, _logo.Width*2/3, _logo.Height*2/3);
             SpriteBatch.Draw(_logo, destRectangle, Color.White);
-            if (gameStatus == GameStatus.DeathMenu)
+            if (gameStatus == GameStatus.DeathMenu || gameStatus == GameStatus.WinMenu)
             {
                 var destRectangle2 = new Rectangle(0,
                     0, _screenWidth, _screenHeight);
-                SpriteBatch.Draw(_gameOverBackground, destRectangle2, Color.White);
-                var text = "Perdiste!";
+                var text = "";
+                if(gameStatus == GameStatus.WinMenu)
+                {
+                    SpriteBatch.Draw(_winBackground, destRectangle2, Color.White);
+                    text = "Ganaste!";
+                }
+                if(gameStatus == GameStatus.DeathMenu)
+                {
+                    SpriteBatch.Draw(_gameOverBackground, destRectangle2, Color.White);
+                    text = "Perdiste!";
+                }
                 var size = Font.MeasureString(text);
-                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth/2f - size.X/2), 20), Color.Red);
-            }
-            if (gameStatus == GameStatus.WinMenu)
-            {
-                var destRectangle2 = new Rectangle(0,
-                    0, _screenWidth, _screenHeight);
-                SpriteBatch.Draw(_winBackground, destRectangle2, Color.White);
-                var text = "Ganaste!";
-                var size = Font.MeasureString(text);
-                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth/2f - size.X/2), 20), Color.Red);
+                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth/2f - size.X/2), _screenHeight * 1/2f), Color.Red);
             }
             SpriteBatch.End();
-            Buttons.Draw(SpriteBatch);
-            GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            if (gameStatus == GameStatus.MainMenu)
+            {
+                Buttons.Draw(SpriteBatch);
+                GraphicsDevice.DepthStencilState = DepthStencilState.Default;
+            }
         }
 
         public void Dispose()
