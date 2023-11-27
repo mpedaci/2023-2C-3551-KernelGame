@@ -338,7 +338,7 @@ public class Tank : Resource, ICollidable
 
     public void CollidedWithLargeProp()
     {
-        Console.WriteLine($"Chocaste con prop grande {DateTime.Now}");
+        //Console.WriteLine($"Chocaste con prop grande {DateTime.Now}");
         if (Velocidad > 0)
             Velocidad = Math.Max(0.0001f, Velocidad);
         else
@@ -363,8 +363,7 @@ public class Tank : Resource, ICollidable
             ImpactDirections.Add(new Vector3(impactDir.X * -1, impactDir.Y, impactDir.Z * -1));
             bullet.IsAlive = false;
             Health -= 1;
-            Console.WriteLine("Me pego una bala - Cant impactos en lista = " + ImpactPositions.Count + " - Health: " +
-                              Health);
+            //Console.WriteLine($"Me pego una bala - Cant impactos en lista = {ImpactPositions.Count} - Health: {Health}");
         }
     }
 
@@ -398,8 +397,8 @@ public class Tank : Resource, ICollidable
             var vTank = new Vector2(World.Forward.X, World.Forward.Z);
             var dot = (tank.World.Forward.X * World.Forward.X + tank.World.Forward.Z * World.Forward.Z);
             var angleOfCollision = Math.Acos(dot / (v.Length() * vTank.Length()));
-            Console.WriteLine(tank.World.Forward + " - " + World.Forward);
-            Console.WriteLine(angleOfCollision);
+            //Console.WriteLine(tank.World.Forward + " - " + World.Forward);
+            //Console.WriteLine(angleOfCollision);
             if (angleOfCollision < MathHelper.PiOver4)
             {
                 var vectorDistance = tank.Position - Position;

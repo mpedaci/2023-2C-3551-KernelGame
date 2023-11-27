@@ -27,7 +27,6 @@ public class AIActionTank : ActionTank
 
     public override void Update(GameTime gameTime, Tank tank)
     {
-        return;
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
         List<Vector3> paths = new List<Vector3>();
         Vector3 positionXZ = new Vector3(tank.Position.X, 0f, tank.Position.Z);
