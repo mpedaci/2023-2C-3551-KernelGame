@@ -6,7 +6,6 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Media;
 using TGC.MonoGame.TP.Cameras;
-using TGC.MonoGame.TP.Geometries;
 using TGC.MonoGame.TP.Helpers.Gizmos;
 using TGC.MonoGame.TP.HUD;
 using TGC.MonoGame.TP.Maps;
@@ -43,7 +42,7 @@ namespace TGC.MonoGame.TP
         /* OPTIMIZACION */
         private BoundingFrustum BoundingFrustum { get; set; }
         private TargetCamera OptimizationCamera { get; set; }
-        
+
         /* DEBUG */
         private SpriteFont Font;
         private SpriteBatch SpriteBatch;
@@ -55,6 +54,7 @@ namespace TGC.MonoGame.TP
             Graphics = new GraphicsDeviceManager(this);
             Graphics.PreferredBackBufferWidth = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width - 100;
             Graphics.PreferredBackBufferHeight = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height - 100;
+            Graphics.IsFullScreen = false;
             Graphics.ApplyChanges();
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
@@ -72,24 +72,24 @@ namespace TGC.MonoGame.TP
             TargetLightCamera = new TargetCamera(1f, Map.SkyDome.LightPosition, Vector3.Zero, new Vector2(20f, 5f));
             TargetLightCamera.BuildProjection(1f, LightCameraNearPlaneDistance, LightCameraFarPlaneDistance,
                 MathHelper.PiOver2);
-            
+
             PlayerCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f,
                 Vector3.Zero, new Vector2(20f, 5f));
-            
+
             DebugCamera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f,
                 1f);
-            
+
             OptimizationCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f,
                 Vector3.Zero, new Vector2(100f, 25f));
-            
+
             BoundingFrustum = new BoundingFrustum(PlayerCamera.View * PlayerCamera.Projection);
 
             TimeSinceLastChange = 0f;
             ScreenTime = new ScreenTime(GraphicsDevice, 120f);
             Score = new Score(GraphicsDevice, 5);
-            
+
             SpriteBatch = new SpriteBatch(GraphicsDevice);
-            
+
             base.Initialize();
         }
 
@@ -102,10 +102,11 @@ namespace TGC.MonoGame.TP
             Score.LoadContent(Content);
             Song = Content.Load<Song>($"{ContentFolder.Music}/world-of-tanks");
             Font = Content.Load<SpriteFont>($"{ContentFolder.Fonts}/Verdana16");
-            ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, TexturesRepository.ShadowmapSize, TexturesRepository.ShadowmapSize, false,
+            ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, TexturesRepository.ShadowmapSize,
+                TexturesRepository.ShadowmapSize, false,
                 SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
             GraphicsDevice.BlendState = BlendState.Opaque;
-        
+
             base.LoadContent();
         }
 
@@ -122,8 +123,9 @@ namespace TGC.MonoGame.TP
                 Map.Reset();
                 Score.Reset();
             }
-            
-            if (keyboardState.IsKeyDown(Keys.Space) && GameState.CurrentStatus is GameStatus.DeathMenu or GameStatus.WinMenu && TimeSinceLastChange > 0.5f)
+
+            if (keyboardState.IsKeyDown(Keys.Space) &&
+                GameState.CurrentStatus is GameStatus.DeathMenu or GameStatus.WinMenu && TimeSinceLastChange > 0.5f)
             {
                 GameState.Set(GameStatus.MainMenu);
                 TimeSinceLastChange = 0f;
@@ -131,16 +133,55 @@ namespace TGC.MonoGame.TP
                 Map.Reset();
                 Score.Reset();
             }
-            
+
             if (Score.HasWon() && GameState.CurrentStatus is GameStatus.NormalGame or GameStatus.GodModeGame)
             {
                 GameState.Set(GameStatus.WinMenu);
                 TimeSinceLastChange = 0f;
             }
-            
-            if(ScreenTime.HasEnded() && !Score.HasWon() && GameState.CurrentStatus is GameStatus.NormalGame or GameStatus.GodModeGame)
+
+            if (ScreenTime.HasEnded() && !Score.HasWon() &&
+                GameState.CurrentStatus is GameStatus.NormalGame or GameStatus.GodModeGame)
             {
                 GameState.Set(GameStatus.DeathMenu);
+                TimeSinceLastChange = 0f;
+            }
+
+            // Musica
+            if (MediaPlayer.State != MediaState.Playing)
+            {
+                MediaPlayer.Volume = 0.05f;
+                MediaPlayer.Play(Song);
+            }
+
+            if (keyboardState.IsKeyDown(Keys.F1) && TimeSinceLastChange > 0.5f)
+            {
+                GameState.Set(GameStatus.MainMenu);
+                TimeSinceLastChange = 0f;
+            }
+
+            if (keyboardState.IsKeyDown(Keys.F2) && TimeSinceLastChange > 0.5f)
+            {
+                GameState.Set(GameStatus.NormalGame);
+                TimeSinceLastChange = 0f;
+            }
+
+            if (keyboardState.IsKeyDown(Keys.F3) && TimeSinceLastChange > 0.5f)
+            {
+                GameState.Set(GameStatus.DebugModeGame);
+                TimeSinceLastChange = 0f;
+            }
+
+            if (keyboardState.IsKeyDown(Keys.F4) && TimeSinceLastChange > 0.5f)
+            {
+                GameState.Set(GameStatus.GodModeGame);
+                TimeSinceLastChange = 0f;
+            }
+
+            if (keyboardState.IsKeyDown(Keys.F5) && TimeSinceLastChange > 0.5f)
+            {
+                Graphics.IsFullScreen = !Graphics.IsFullScreen;
+                Graphics.ApplyChanges();
                 TimeSinceLastChange = 0f;
             }
 
@@ -155,28 +196,12 @@ namespace TGC.MonoGame.TP
                 GameState.Set(GameStatus.DeathMenu);
                 TimeSinceLastChange = 0f;
             }
-            
+
             if (keyboardState.IsKeyDown(Keys.F12) && TimeSinceLastChange > 0.5f)
             {
                 showFPS = !showFPS;
                 TimeSinceLastChange = 0f;
             }
-
-            // Musica
-            if (MediaPlayer.State != MediaState.Playing)
-            {
-                MediaPlayer.Volume = 0.05f;
-                MediaPlayer.Play(Song);
-            }
-
-            if (keyboardState.IsKeyDown(Keys.F1) && TimeSinceLastChange > 0.5f)
-                GameState.Set(GameStatus.MainMenu);
-            if (keyboardState.IsKeyDown(Keys.F2) && TimeSinceLastChange > 0.5f)
-                GameState.Set(GameStatus.NormalGame);
-            if (keyboardState.IsKeyDown(Keys.F3) && TimeSinceLastChange > 0.5f)
-                GameState.Set(GameStatus.DebugModeGame);
-            if (keyboardState.IsKeyDown(Keys.F4) && TimeSinceLastChange > 0.5f)
-                GameState.Set(GameStatus.GodModeGame);
 
             switch (GameState.CurrentStatus)
             {
@@ -191,6 +216,7 @@ namespace TGC.MonoGame.TP
                         Menu.Dispose();
                         GameState.FirstUpdate = false;
                     }
+
                     ScreenTime.Update(gameTime);
                     Score.Update(Map.Tanks);
                     Map.Update(gameTime);
@@ -206,6 +232,7 @@ namespace TGC.MonoGame.TP
                         Menu.Dispose();
                         GameState.FirstUpdate = false;
                     }
+
                     ScreenTime.Update(gameTime);
                     Score.Update(Map.Tanks);
                     Map.Update(gameTime, true);
@@ -222,6 +249,7 @@ namespace TGC.MonoGame.TP
                         GameState.FirstUpdate = false;
                         showFPS = true;
                     }
+
                     Map.Update(gameTime);
                     TargetLightCamera.Position = Map.SkyDome.LightPosition;
                     TargetLightCamera.BuildView();
@@ -281,6 +309,7 @@ namespace TGC.MonoGame.TP
                 default:
                     throw new ArgumentOutOfRangeException();
             }
+
             if (showFPS)
                 DrawFPS(gameTime);
         }
@@ -299,28 +328,29 @@ namespace TGC.MonoGame.TP
             Gizmos.DrawFrustum(PlayerCamera.View * PlayerCamera.Projection, Color.Yellow);
             Gizmos.DrawFrustum(TargetLightCamera.View * TargetLightCamera.Projection, Color.White);
             Gizmos.DrawFrustum(OptimizationCamera.View * OptimizationCamera.Projection, Color.Green);
-            
+
             /* LIMITES DEL MAPA */
             foreach (var limit in Map.Limits)
                 Gizmos.DrawCube((limit.Max + limit.Min) / 2f, limit.Max - limit.Min, Color.Blue);
         }
-        
+
         private void DrawFPS(GameTime gameTime)
         {
             var fps = 1 / (float)gameTime.ElapsedGameTime.TotalSeconds;
             var fpsString = $"FPS: {fps:0}";
             SpriteBatch.Begin();
-            SpriteBatch.DrawString(Font, fpsString, new Vector2( 10, 10), Color.Black, 0f, Vector2.Zero, 1f,
+            SpriteBatch.DrawString(Font, fpsString, new Vector2(10, 10), Color.Black, 0f, Vector2.Zero, 1f,
                 SpriteEffects.None, 0);
             SpriteBatch.End();
         }
-        
+
         private void DrawCoords()
         {
-            var coords = $"X: {DebugCamera.Position.X:0.00} Y: {DebugCamera.Position.Y:0.00} Z: {DebugCamera.Position.Z:0.00}";
+            var coords =
+                $"X: {DebugCamera.Position.X:0.00} Y: {DebugCamera.Position.Y:0.00} Z: {DebugCamera.Position.Z:0.00}";
             var size = Font.MeasureString(coords);
             SpriteBatch.Begin();
-            SpriteBatch.DrawString(Font, coords, new Vector2( 10, 10 + size.Y), Color.LimeGreen, 0f, Vector2.Zero, 1f,
+            SpriteBatch.DrawString(Font, coords, new Vector2(10, 10 + size.Y), Color.LimeGreen, 0f, Vector2.Zero, 1f,
                 SpriteEffects.None, 0);
             SpriteBatch.End();
         }
