@@ -6,17 +6,20 @@ namespace TGC.MonoGame.TP.Types.Tanks;
 
 public class PlayerActionTank : ActionTank
 {
+    GraphicsDeviceManager _graphicsDevice;
     public Point _center;
     public float _sensitivityX = 0.0018f;
     public float _sensitivityY = 0.002f;
     public PlayerActionTank(bool isEnemy, GraphicsDeviceManager graphicsDevice)
     {
         _center = new Point(graphicsDevice.PreferredBackBufferWidth / 2, graphicsDevice.PreferredBackBufferHeight / 2);
+        _graphicsDevice = graphicsDevice;
     }
 
     public override void Update(GameTime gameTime, Tank tank)
     {
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
+        _center = new Point(_graphicsDevice.PreferredBackBufferWidth / 2, _graphicsDevice.PreferredBackBufferHeight / 2);
         KeySense(elapsedTime, tank);
         ProcessMouse(elapsedTime, tank);
         tank.TankHud.Update(tank.World, tank.Health, tank.shootTime);

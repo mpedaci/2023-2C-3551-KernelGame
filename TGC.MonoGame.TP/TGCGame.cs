@@ -32,6 +32,7 @@ namespace TGC.MonoGame.TP
         private Song Song { get; set; }
         private ScreenTime ScreenTime { get; set; }
         private Score Score { get; set; }
+        private Texture2D Crosshair { get; set; }
 
         /* SOMBRAS */
         private readonly float LightCameraFarPlaneDistance = 3000f;
@@ -74,7 +75,7 @@ namespace TGC.MonoGame.TP
                 MathHelper.PiOver2);
 
             PlayerCamera = new TargetCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.One * 100f,
-                Vector3.Zero, new Vector2(20f, 5f));
+                Vector3.Zero, new Vector2(20f, 3f));
 
             DebugCamera = new DebugCamera(GraphicsDevice.Viewport.AspectRatio, Vector3.UnitY * 20, 125f,
                 1f);
@@ -102,6 +103,7 @@ namespace TGC.MonoGame.TP
             Score.LoadContent(Content);
             Song = Content.Load<Song>($"{ContentFolder.Music}/world-of-tanks");
             Font = Content.Load<SpriteFont>($"{ContentFolder.Fonts}/Verdana16");
+            Crosshair = Content.Load<Texture2D>($"{ContentFolder.Images}/crosshair");
             ShadowMapRenderTarget = new RenderTarget2D(GraphicsDevice, TexturesRepository.ShadowmapSize,
                 TexturesRepository.ShadowmapSize, false,
                 SurfaceFormat.Single, DepthFormat.Depth24, 0, RenderTargetUsage.PlatformContents);
@@ -216,7 +218,6 @@ namespace TGC.MonoGame.TP
                         Menu.Dispose();
                         GameState.FirstUpdate = false;
                     }
-
                     ScreenTime.Update(gameTime);
                     Score.Update(Map.Tanks);
                     Map.Update(gameTime);
@@ -232,7 +233,6 @@ namespace TGC.MonoGame.TP
                         Menu.Dispose();
                         GameState.FirstUpdate = false;
                     }
-
                     ScreenTime.Update(gameTime);
                     Score.Update(Map.Tanks);
                     Map.Update(gameTime, true);
@@ -249,7 +249,6 @@ namespace TGC.MonoGame.TP
                         GameState.FirstUpdate = false;
                         showFPS = true;
                     }
-
                     Map.Update(gameTime);
                     TargetLightCamera.Position = Map.SkyDome.LightPosition;
                     TargetLightCamera.BuildView();
@@ -286,12 +285,14 @@ namespace TGC.MonoGame.TP
                     Map.Draw(PlayerCamera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, BoundingFrustum);
                     ScreenTime.Draw();
                     Score.Draw();
+                    DrawCrossHair();
                     break;
                 case GameStatus.GodModeGame:
                     GraphicsDevice.Clear(Color.CornflowerBlue);
                     Map.Draw(PlayerCamera, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera, BoundingFrustum);
                     ScreenTime.Draw();
                     Score.Draw();
+                    DrawCrossHair();
                     break;
                 case GameStatus.DebugModeGame:
                     GraphicsDevice.Clear(Color.CornflowerBlue);
@@ -353,6 +354,23 @@ namespace TGC.MonoGame.TP
             SpriteBatch.DrawString(Font, coords, new Vector2(10, 10 + size.Y), Color.LimeGreen, 0f, Vector2.Zero, 1f,
                 SpriteEffects.None, 0);
             SpriteBatch.End();
+        }
+        
+        private void DrawCrossHair()
+        {
+            var crosshairPosition = new Vector2(
+                GraphicsDevice.Viewport.Width / 2f - Map.Player.yaw * 15,
+                GraphicsDevice.Viewport.Height / 2f - Map.Player.pitch * 40);
+            var destRectangle = new Rectangle(
+                (int)(crosshairPosition.X - GraphicsDevice.Viewport.Width / 60),
+                (int)(crosshairPosition.Y - GraphicsDevice.Viewport.Width / 60),
+                GraphicsDevice.Viewport.Width / 40,
+                GraphicsDevice.Viewport.Width / 40);
+
+            SpriteBatch.Begin();
+            SpriteBatch.Draw(Crosshair, destRectangle, Color.White);
+            SpriteBatch.End();
+            
         }
 
         protected override void UnloadContent()

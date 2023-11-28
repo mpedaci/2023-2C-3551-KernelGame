@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Content;
 using Microsoft.Xna.Framework.Graphics;
+using TGC.MonoGame.TP.Types.Tanks;
+using TGC.MonoGame.TP.Utils;
 
 namespace TGC.MonoGame.TP.HUD;
 

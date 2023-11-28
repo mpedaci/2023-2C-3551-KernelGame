@@ -326,7 +326,10 @@ public class Tank : Resource, ICollidable
 
         Bullets.Where(bullet => bullet.IsAlive).ToList().ForEach(bullet =>
             bullet.Draw(camera, skyDome, ShadowMapRenderTarget, GraphicsDevice, TargetLightCamera));
-        TankHud.Draw(camera.Projection);
+        if (Action is PlayerActionTank)
+        {
+            TankHud.Draw(camera.Projection);
+        }
     }
 
     // ICollidable
