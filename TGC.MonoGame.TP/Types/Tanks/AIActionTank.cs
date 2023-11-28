@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Xna.Framework;
 using TGC.MonoGame.TP.Maps;
+using TGC.MonoGame.TP.Types.Props;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
@@ -13,9 +14,9 @@ public class AIActionTank : ActionTank
     private int PathIndex = 0;
     public float BotNum;
     public Map PlaneMap;
-    public Tank Objective;
+    public Tank targetEnemy;
     public bool hasObjective = false;
-    public List<Tank> PossibleObjectives;
+    public List<Tank> enemies;
     private float angle = 0f;
 
     public AIActionTank(bool isAEnemy, int Index, Map plane)
@@ -28,148 +29,87 @@ public class AIActionTank : ActionTank
     public override void Update(GameTime gameTime, Tank tank)
     {
         var elapsedTime = (float)gameTime.ElapsedGameTime.Milliseconds;
-        List<Vector3> paths = new List<Vector3>();
-        Vector3 positionXZ = new Vector3(tank.Position.X, 0f, tank.Position.Z);
-
-        if (tank.Health <= 0)
+        if (enemies is null)
         {
-            tank.Respawn();
-        }
-
-        if (hasObjective && Objective.Health <= 0)
-        {
-            hasObjective = false;
-        }
-
-        if (isEnemy)
-        {
-            paths.Add(new Vector3(-225f, 0f, (float)(3.5 + BotNum * 3)));
-            if (BotNum % 2 == 0)
-            {
-                paths.Add(new Vector3(-225f, 0f, 273f));
-                paths.Add(new Vector3(-145f, 0f, 273 + BotNum * 3));
-            }
-            else
-            {
-                paths.Add(new Vector3(-225f, 0f, -273f));
-                paths.Add(new Vector3(-145f, 0f, (-273 + BotNum * 3)));
-            }
-        }
-
-        if (!isEnemy)
-        {
-            paths.Add(new Vector3(334f, 0f, (float)(11 + BotNum * 3)));
-            if (BotNum % 2 == 0)
-            {
-                paths.Add(new Vector3(179f, 0f, 340f));
-                paths.Add(new Vector3(160f, 0f, 263 + BotNum * 3));
-            }
-            else
-            {
-                paths.Add(new Vector3(293f, 0f, -324f));
-                paths.Add(new Vector3(160f, 0f, (-250 + BotNum * 3)));
-            }
-        }
-
-        if (!perseguir)
-        {
-            Vector3 direction;
             if (isEnemy)
             {
-                direction = paths[PathIndex] - positionXZ;
+                enemies = PlaneMap.Tanks.Where(t => !t.Action.isEnemy).ToList();
             }
             else
             {
-                direction = paths[PathIndex] - positionXZ;
-            }
-
-            Vector3 forward = Vector3.Transform(Vector3.Forward, Matrix.CreateRotationY(tank.Angle));
-
-
-            if (Math.Round(direction.Length()) != 0)
-            {
-                angle = MathF.Acos(Vector3.Dot(direction, forward) / (direction.Length() * forward.Length()));
-            }
-            else
-            {
-                PathIndex++;
-                if (PathIndex == 3)
-                {
-                    perseguir = true;
-                }
-            }
-        }
-        else
-        {
-            if (!hasObjective)
-            {
-                if (isEnemy)
-                {
-                    PossibleObjectives = PlaneMap.Tanks.Where(tank => tank.Action.isEnemy == false).ToList();
-                    PossibleObjectives.Add(PlaneMap.Player);
-                    PossibleObjectives = PossibleObjectives.FindAll(tank => tank.Health != 0);
-                }
-                else
-                {
-                    PossibleObjectives = PlaneMap.Tanks.Where(tank => tank.Action.isEnemy).ToList();
-                }
-
-                Random r = new Random();
-
-                Objective = PossibleObjectives[r.Next(PossibleObjectives.Count)];
-
-                hasObjective = true;
-            }
-
-            Vector3 objectiveXZ = new Vector3(Objective.Position.X, 0f, Objective.Position.Z);
-
-            Vector3 direction = objectiveXZ - positionXZ;
-
-            Vector3 forward = Vector3.Transform(Vector3.Forward, Matrix.CreateRotationY(tank.Angle));
-
-            if (Math.Round(direction.Length()) != 0)
-            {
-                angle = MathF.Acos(Vector3.Dot(direction, forward) / (direction.Length() * forward.Length()));
+                enemies = PlaneMap.Tanks.Where(t => t.Action.isEnemy).ToList();
             }
         }
 
-        Matrix Rotation;
-        if (!isEnemy)
+        // AI logic
+        if (enemies.Count > 0)
         {
-            Rotation = Matrix.CreateRotationY(angle);
+            // Get the closest enemy
+            Vector3 targetEnemy = GetClosestEnemy(tank);
+
+            // Move towards the enemy
+            MoveTowards(targetEnemy, tank);
+
+            // Check and avoid map props
+            AvoidProps(tank);
         }
-        else
+    }
+
+    private Vector3 GetClosestEnemy(Tank tank)
+    {
+        Vector3 closestEnemy = Vector3.Zero;
+        float closestDistance = float.MaxValue;
+
+        foreach (Tank enemy in enemies)
         {
-            Rotation = Matrix.CreateRotationY(-angle);
+            float distance = Vector3.Distance(tank.Position, enemy.Position);
+            if (distance < closestDistance)
+            {
+                closestDistance = distance;
+                closestEnemy = enemy.Position;
+            }
         }
 
+        return closestEnemy;
+    }
 
-        tank.Position += Vector3.Transform(Vector3.Forward, Rotation) * VELOCIDAD_MAX * elapsedTime;
-        var Traslation = Matrix.CreateTranslation(tank.Position);
-        tank.World = Matrix.CreateScale(tank.Reference.Scale) * tank.Reference.Rotation * Rotation * Traslation;
+    private void MoveTowards(Vector3 target, Tank tank)
+    {
+        // Calculate direction vector
+        Vector3 direction = Vector3.Normalize(target - tank.Position);
 
-        if (!tank.hasShot && perseguir)
+        // Update tank angle to face the target
+        tank.Angle = (float)Math.Atan2(-direction.X, direction.Z);
+
+        // Apply acceleration
+        tank.Velocidad += tank.Acceleration;
+
+        // Limit speed
+        tank.Velocidad = MathHelper.Clamp(tank.Velocidad, 0, tank.MaxSpeed);
+
+        // Update tank position
+        tank.Position += direction * tank.Velocidad;
+
+        // Apply friction
+        tank.Velocidad *= (1 - tank.Friction);
+
+        // Update translation matrix
+        tank.Translation = Matrix.CreateTranslation(tank.Position);
+    }
+
+    private void AvoidProps(Tank tank)
+    {
+        // Check and avoid map props
+        foreach (StaticProp prop in PlaneMap.Props)
         {
-            var bulletPosition = tank.Position; //TODO por ahi es la position del cannon
-            var yawRadians = MathHelper.ToRadians(tank.yaw);
-            var pitchRadians = MathHelper.ToRadians(tank.pitch);
-            var bulletDirection = Vector3.Transform(
-                Vector3.Transform(
-                    tank.cannonBone.Transform.Forward,
-                    Matrix.CreateFromYawPitchRoll(yawRadians, pitchRadians, 0f)
-                ),
-                Matrix.CreateRotationY(tank.Angle));
-            var bullet = new Bullet(
-                tank.BulletModel,
-                tank.BulletEffect,
-                tank.BulletReference,
-                Matrix.CreateFromYawPitchRoll(yawRadians, -pitchRadians, 0f),
-                Matrix.CreateRotationY(tank.Angle),
-                bulletPosition,
-                bulletDirection);
-            tank.Bullets.Add(bullet);
-            tank.hasShot = true;
-            tank.shootTime = 1.25f;
+            float distanceToProp = Vector3.Distance(tank.Position, prop.Position);
+
+            if (distanceToProp < 5)
+            {
+                // Adjust tank position to avoid the prop
+                Vector3 awayFromProp = Vector3.Normalize(tank.Position - prop.Position);
+                tank.Position += awayFromProp * 2; // Move 2 units away from the prop
+            }
         }
     }
 
