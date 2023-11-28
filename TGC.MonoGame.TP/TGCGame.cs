@@ -87,7 +87,7 @@ namespace TGC.MonoGame.TP
 
             TimeSinceLastChange = 0f;
             ScreenTime = new ScreenTime(GraphicsDevice, 120f);
-            Score = new Score(GraphicsDevice, 5);
+            Score = new Score(GraphicsDevice, 3);
 
             SpriteBatch = new SpriteBatch(GraphicsDevice);
 
@@ -124,6 +124,7 @@ namespace TGC.MonoGame.TP
                 ScreenTime.Reset();
                 Map.Reset();
                 Score.Reset();
+                IsMouseVisible = true;
             }
 
             if (keyboardState.IsKeyDown(Keys.Space) &&
@@ -134,6 +135,7 @@ namespace TGC.MonoGame.TP
                 ScreenTime.Reset();
                 Map.Reset();
                 Score.Reset();
+                IsMouseVisible = true;
             }
 
             if (Score.HasWon() && GameState.CurrentStatus is GameStatus.NormalGame or GameStatus.GodModeGame)
@@ -160,24 +162,28 @@ namespace TGC.MonoGame.TP
             {
                 GameState.Set(GameStatus.MainMenu);
                 TimeSinceLastChange = 0f;
+                IsMouseVisible = true;
             }
 
             if (keyboardState.IsKeyDown(Keys.F2) && TimeSinceLastChange > 0.5f)
             {
                 GameState.Set(GameStatus.NormalGame);
                 TimeSinceLastChange = 0f;
+                IsMouseVisible = false;
             }
 
             if (keyboardState.IsKeyDown(Keys.F3) && TimeSinceLastChange > 0.5f)
             {
                 GameState.Set(GameStatus.DebugModeGame);
                 TimeSinceLastChange = 0f;
+                IsMouseVisible = false;
             }
 
             if (keyboardState.IsKeyDown(Keys.F4) && TimeSinceLastChange > 0.5f)
             {
                 GameState.Set(GameStatus.GodModeGame);
                 TimeSinceLastChange = 0f;
+                IsMouseVisible = false;
             }
 
             if (keyboardState.IsKeyDown(Keys.F5) && TimeSinceLastChange > 0.5f)
@@ -191,12 +197,14 @@ namespace TGC.MonoGame.TP
             {
                 GameState.Set(GameStatus.WinMenu);
                 TimeSinceLastChange = 0f;
+                IsMouseVisible = false;
             }
 
             if (keyboardState.IsKeyDown(Keys.F10) && TimeSinceLastChange > 0.5f)
             {
                 GameState.Set(GameStatus.DeathMenu);
                 TimeSinceLastChange = 0f;
+                IsMouseVisible = false;
             }
 
             if (keyboardState.IsKeyDown(Keys.F12) && TimeSinceLastChange > 0.5f)
@@ -217,6 +225,7 @@ namespace TGC.MonoGame.TP
                     {
                         Menu.Dispose();
                         GameState.FirstUpdate = false;
+                        IsMouseVisible = false;
                     }
                     ScreenTime.Update(gameTime);
                     Score.Update(Map.Tanks);
@@ -232,6 +241,7 @@ namespace TGC.MonoGame.TP
                     {
                         Menu.Dispose();
                         GameState.FirstUpdate = false;
+                        IsMouseVisible = false;
                     }
                     ScreenTime.Update(gameTime);
                     Score.Update(Map.Tanks);
@@ -248,6 +258,7 @@ namespace TGC.MonoGame.TP
                         Menu.Dispose();
                         GameState.FirstUpdate = false;
                         showFPS = true;
+                        IsMouseVisible = false;
                     }
                     Map.Update(gameTime);
                     TargetLightCamera.Position = Map.SkyDome.LightPosition;

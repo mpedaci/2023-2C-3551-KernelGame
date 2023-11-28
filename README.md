@@ -19,19 +19,15 @@ Afuera del mundo Windows, vas a necesitar la ayudar de [Wine](https://www.winehq
 Los recursos usados se almacenan utilizando [Git LFS](https://git-lfs.github.com), con lo cual antes de clonar el repositorio les conviene tenerlo instalado así es automático el pull o si ya lo tienen pueden hacer `git lfs pull`.
 
 ## Integrantes
-
-Garcia Fariñas, Guadalupe  | Morales Vranic, Santiago |  Pedaci, Marcos | Piccininno, Franco | Vazquez, Juan Martin
-| ------------ | ------------- | ------------- | ------------- | ------------- |
-| <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/robotgc.png" height="500"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="500"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="500"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="500"> | <img src="https://github.com/tgc-utn/tgc-utn.github.io/blob/master/images/trofeotp.png" height="500">
-
+| Garcia Fariñas, Guadalupe | Morales Vranic, Santiago | Pedaci, Marcos | Piccininno, Franco | Vazquez, Juan Martin |
+| :------------: | :-------------: | :-------------: | :-------------: | :-------------: |
+| <img src="./Resources/Garcia.jpg" height="100"> | <img src="./Resources/Morales.jpg" height="100"> | <img src="./Resources/Pedaci.png" height="100"> | <img src="./Resources/Piccininno.jpg" height="100"> | <img src="./Resources/Vazquez.jpg" height="100">
 ## Capturas
 
-![screenshot1](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot2](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot3](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot4](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
-![screenshot5](https://github.com/tgc-utn/tgc-monogame-tp/blob/master/TGC.MonoGame.TP/Icon.bmp)
+![screenshot1](./Resources/Screenshot1.png)
+![screenshot2](./Resources/Screenshot2.png)
+![screenshot3](./Resources/Screenshot3.png)
 
 ## Game Play
 
-[![Watch the video](https://img.youtube.com/vi/pgEwUC0jvH4/0.jpg)](https://www.youtube.com/playlist?list=PLRM4L32DjvnazuMl8wZlbpEYL5Qh63ulG)
+[![Watch the video](https://img.youtube.com/vi/i0HMkeZ1900/0.jpg)](https://www.youtube.com/watch?v=i0HMkeZ1900)

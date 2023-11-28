@@ -17,10 +17,6 @@ public class MainMenu
     private Texture2D _logo;
     private Texture2D _winBackground;
     private Texture2D _gameOverBackground;
-        
-    private int _screenWidth;
-    private int _screenHeight;
-
     // Background
     private Map _menuMap;
     private Camera _camera;
@@ -33,10 +29,6 @@ public class MainMenu
         {
             GraphicsDevice = graphicsDevice;
             SpriteBatch = new SpriteBatch(graphicsDevice);
-            
-            _screenWidth = graphicsDevice.Viewport.Width;
-            _screenHeight = graphicsDevice.Viewport.Height;
-            
             _menuMap = menuMap;
             _camera = new AngularCamera(GraphicsDevice.Viewport.AspectRatio, new Vector3(0f,50f,10f), _menuMap.Player.Position, (float)Math.PI/4);
             
@@ -47,7 +39,7 @@ public class MainMenu
                 new ("Debug", GameStatus.DebugModeGame),
                 new ("Salir", GameStatus.Exit),
             };
-            Buttons = new ButtonsGrid(gameState, _screenWidth/2, _screenHeight/2, buttons);
+            Buttons = new ButtonsGrid(gameState, graphicsDevice.Viewport.Width/2, graphicsDevice.Viewport.Height/2, buttons);
         }
     
         public void LoadContent(GraphicsDevice graphicsDevice,ContentManager content)
@@ -80,13 +72,13 @@ public class MainMenu
             }
             catch (Exception e) { }
             SpriteBatch.Begin();
-            var destRectangle = new Rectangle((_screenWidth - _logo.Width*2/3)/2,
-                _screenHeight/50, _logo.Width*2/3, _logo.Height*2/3);
+            var destRectangle = new Rectangle((GraphicsDevice.Viewport.Width - _logo.Width*2/3)/2,
+                GraphicsDevice.Viewport.Height/50, _logo.Width*2/3, _logo.Height*2/3);
             SpriteBatch.Draw(_logo, destRectangle, Color.White);
             if (gameStatus == GameStatus.DeathMenu || gameStatus == GameStatus.WinMenu)
             {
                 var destRectangle2 = new Rectangle(0,
-                    0, _screenWidth, _screenHeight);
+                    0, GraphicsDevice.Viewport.Width, GraphicsDevice.Viewport.Height);
                 var text = "";
                 if(gameStatus == GameStatus.WinMenu)
                 {
@@ -99,11 +91,11 @@ public class MainMenu
                     text = "Perdiste!";
                 }
                 var size = Font.MeasureString(text);
-                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth/2f - size.X/2), 20f), Color.DarkRed, 0f, Vector2.Zero, 1f,
+                SpriteBatch.DrawString(Font, text, new Vector2((GraphicsDevice.Viewport.Width/2f - size.X/2), 20f), Color.DarkRed, 0f, Vector2.Zero, 1f,
                     SpriteEffects.None, 0);
                 text = "Pulse espacio para volver al menu principal";
                 size = Font.MeasureString(text);
-                SpriteBatch.DrawString(Font, text, new Vector2((_screenWidth/2f - size.X/2), 20f + 50f), Color.DarkRed, 0f, Vector2.Zero, 1f,
+                SpriteBatch.DrawString(Font, text, new Vector2((GraphicsDevice.Viewport.Width/2f - size.X/2), 20f + 50f), Color.DarkRed, 0f, Vector2.Zero, 1f,
                     SpriteEffects.None, 0);
             }
             SpriteBatch.End();

@@ -9,7 +9,7 @@ namespace TGC.MonoGame.TP.Types.Tanks;
 public class AIActionTank : ActionTank
 {
     public bool perseguir = false;
-    private const float VELOCIDAD_MAX = 0.003f;
+    private const float VELOCIDAD_MAX = 0.021f;
     private int PathIndex = 0;
     public float BotNum;
     public Map PlaneMap;
