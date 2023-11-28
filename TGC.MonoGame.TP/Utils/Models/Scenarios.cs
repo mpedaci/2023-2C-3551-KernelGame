@@ -10,7 +10,7 @@ public class Scenarios
 {
     public static readonly ScenaryReference Plane = new ScenaryReference(
         Props.PlaneScene,
-        new Vector3(0f, 2f, 0f),
+        new Vector3(-400f, 2f, 0f),
         new Vector3(400f, 2f, 0f),
         new List<Tuple<Vector3, Vector3>>
         {
@@ -93,8 +93,7 @@ public class Scenarios
             new PropReference(Props.BuildingHouse0, new Vector3(130f, 0f, -195f), PropType.Large),
             new PropReference(Props.BuildingHouse19, new Vector3(130f, 0f, -205f), PropType.Large),
             new PropReference(Props.BuildingHouse13, new Vector3(135f, 0f, -220f), PropType.Large),
-            new PropReference(Props.BuildingHouse3,
-                new Vector3(120f, 0f, -165f), PropType.Large), // Se puede eliminar si es dificil pasar uwu
+            new PropReference(Props.BuildingHouse3,new Vector3(120f, 0f, -165f), PropType.Large), // Se puede eliminar si es dificil pasar uwu
             new PropReference(Props.BuildingHouse15, new Vector3(120f, 0f, -172.5f), PropType.Large),
             new PropReference(Props.BuildingHouse9, new Vector3(165f, 0f, -165f), PropType.Large),
             new PropReference(Props.BuildingHouse6, new Vector3(105f, 0f, -100f), PropType.Large),
@@ -107,7 +106,7 @@ public class Scenarios
             new PropReference(Props.BuildingHouse16, new Vector3(95f, 0f, -70f), PropType.Large),
             new PropReference(Props.BuildingHouse18, new Vector3(100f, 0f, -75f), PropType.Large),
             new PropReference(Props.BuildingHouse15, new Vector3(102.5f, 0f, -85f), PropType.Large),
-            new PropReference(Props.BuildingHouse8, new Vector3(100f, 0f, -1.5f), PropType.Large),
+            // new PropReference(Props.BuildingHouse8, new Vector3(100f, 0f, -1.5f), PropType.Large),
 
             // Centro Inferior
             new PropReference(Props.BuildingHouse11, new Vector3(165f, 0f, -120f), PropType.Large),
@@ -153,8 +152,7 @@ public class Scenarios
             new PropReference(Props.BuildingHouse0, new Vector3(130f, 0f, 195f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse19, new Vector3(130f, 0f, 205f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse13, new Vector3(135f, 0f, 220f + 8f), PropType.Large),
-            new PropReference(Props.BuildingHouse3,
-                new Vector3(120f, 0f, 165f + 8f), PropType.Large), // Se puede eliminar si es dificil pasar uwu
+            new PropReference(Props.BuildingHouse3,new Vector3(120f, 0f, 165f + 8f), PropType.Large), // Se puede eliminar si es dificil pasar uwu
             new PropReference(Props.BuildingHouse15, new Vector3(120f, 0f, 172.5f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse9, new Vector3(165f, 0f, 165f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse6, new Vector3(105f, 0f, 100f + 8f), PropType.Large),
@@ -167,7 +165,7 @@ public class Scenarios
             new PropReference(Props.BuildingHouse16, new Vector3(95f, 0f, 70f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse18, new Vector3(100f, 0f, 75f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse15, new Vector3(102.5f, 0f, 85f + 8f), PropType.Large),
-            new PropReference(Props.BuildingHouse8, new Vector3(100f, 0f, 1.5f + 8f), PropType.Large),
+            // new PropReference(Props.BuildingHouse8, new Vector3(100f, 0f, 1.5f + 8f), PropType.Large),
 
             // Centro Inferior
             new PropReference(Props.BuildingHouse11, new Vector3(165f, 0f, 120f + 8f), PropType.Large),
@@ -235,7 +233,7 @@ public class Scenarios
             new PropReference(Props.BuildingHouse16, new Vector3(-95f, 0f, -70f), PropType.Large),
             new PropReference(Props.BuildingHouse18, new Vector3(-100f, 0f, -75f), PropType.Large),
             new PropReference(Props.BuildingHouse15, new Vector3(-102.5f, 0f, -85f), PropType.Large),
-            new PropReference(Props.BuildingHouse8, new Vector3(-100f, 0f, -1.5f), PropType.Large),
+            // new PropReference(Props.BuildingHouse8, new Vector3(-100f, 0f, -1.5f), PropType.Large),
 
             // Centro Inferior
             new PropReference(Props.BuildingHouse11, new Vector3(-165f, 0f, -120f), PropType.Large),
@@ -281,8 +279,7 @@ public class Scenarios
             new PropReference(Props.BuildingHouse0, new Vector3(-130f, 0f, 195f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse19, new Vector3(-130f, 0f, 205f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse13, new Vector3(-135f, 0f, 220f + 8f), PropType.Large),
-            new PropReference(Props.BuildingHouse3,
-                new Vector3(-120f, 0f, 165f + 8f), PropType.Large), // Se puede eliminar si es dificil pasar uwu
+            new PropReference(Props.BuildingHouse3,new Vector3(-120f, 0f, 165f + 8f), PropType.Large), // Se puede eliminar si es dificil pasar uwu
             new PropReference(Props.BuildingHouse15, new Vector3(-120f, 0f, 172.5f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse9, new Vector3(-165f, 0f, 165f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse6, new Vector3(-105f, 0f, 100f + 8f), PropType.Large),
@@ -295,7 +292,7 @@ public class Scenarios
             new PropReference(Props.BuildingHouse16, new Vector3(-95f, 0f, 70f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse18, new Vector3(-100f, 0f, 75f + 8f), PropType.Large),
             new PropReference(Props.BuildingHouse15, new Vector3(-102.5f, 0f, 85f + 8f), PropType.Large),
-            new PropReference(Props.BuildingHouse8, new Vector3(-100f, 0f, 1.5f + 8f), PropType.Large),
+            // new PropReference(Props.BuildingHouse8, new Vector3(-100f, 0f, 1.5f + 8f), PropType.Large),
 
             // Centro Inferior
             new PropReference(Props.BuildingHouse11, new Vector3(-165f, 0f, 120f + 8f), PropType.Large),
