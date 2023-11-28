@@ -347,6 +347,7 @@ public class Tank : Resource, ICollidable
         else
             Velocidad = Math.Min(-0.0001f, Velocidad);
         Velocidad *= -0.75f;
+        Action.Collided = true;
     }
 
     public bool VerifyCollision(BoundingBox box)
@@ -356,14 +357,16 @@ public class Tank : Resource, ICollidable
 
     public void CheckCollisionWithBullet(Bullet bullet)
     {
-        if (Box.Intersects(bullet.Box))
+        if (Box.Intersects(bullet.Box) && ImpactPositions.Count < 5)
         {
             if (Bullets.Contains(bullet))
                 return;
             var hullTransform = Model.Meshes.First(m => m.Name == "Hull").ParentBone.Transform;
             ImpactPositions.Add(Vector3.Transform(bullet.Position, Matrix.Invert(hullTransform * World)));
             var impactDir = Vector3.Transform(bullet.Direction, Matrix.CreateRotationY(Angle));
-            ImpactDirections.Add(new Vector3(impactDir.X * -1, impactDir.Y, impactDir.Z * -1));
+            var direction = new Vector3(impactDir.X * -1, 5, impactDir.Z * -1);
+            direction.Normalize();
+            ImpactDirections.Add(direction);
             bullet.IsAlive = false;
             Health -= 1;
             //Console.WriteLine($"Me pego una bala - Cant impactos en lista = {ImpactPositions.Count} - Health: {Health}");
@@ -372,6 +375,7 @@ public class Tank : Resource, ICollidable
 
     public void CollidedWithTank(float velocidad)
     {
+        Action.Collided = true;
         if (velocidad > 0)
         {
             if (Velocidad < 0)

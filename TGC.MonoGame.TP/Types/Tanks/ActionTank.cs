@@ -1,9 +1,11 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System;
+using Microsoft.Xna.Framework;
 
 namespace TGC.MonoGame.TP.Types.Tanks;
 
 public abstract class ActionTank
 {
+    public Boolean Collided;
     public bool isEnemy { get; set; }
     
     public abstract void Update(GameTime gameTime, Tank tank);

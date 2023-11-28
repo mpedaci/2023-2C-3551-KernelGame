@@ -10,7 +10,7 @@ namespace TGC.MonoGame.TP.Types.Tanks;
 public class AIActionTank : ActionTank
 {
     public bool perseguir = false;
-    private const float VELOCIDAD_MAX = 0.021f;
+    private const float VELOCIDAD_MAX = 0.04f;
     private int PathIndex = 0;
     public float BotNum;
     public Map PlaneMap;
@@ -18,6 +18,8 @@ public class AIActionTank : ActionTank
     public bool hasObjective = false;
     public List<Tank> enemies;
     private float angle = 0f;
+    private Random random = new Random();
+    private float timeout = 0f;
 
     public AIActionTank(bool isAEnemy, int Index, Map plane)
     {
@@ -41,18 +43,32 @@ public class AIActionTank : ActionTank
             }
         }
 
+        if (timeout > 0)
+        {
+            timeout -= elapsedTime;
+            tank.Velocidad = -0.0075f;
+            return;
+        }
         // AI logic
         if (enemies.Count > 0)
         {
-            // Get the closest enemy
-            Vector3 targetEnemy = GetClosestEnemy(tank);
+                // Get the closest enemy
+                Vector3 targetEnemy = GetClosestEnemy(tank);
 
-            // Move towards the enemy
-            MoveTowards(targetEnemy, tank);
+                // Move towards the enemy
+                MoveTowards(targetEnemy, tank);
 
-            // Check and avoid map props
-            AvoidProps(tank);
+                // Check and avoid map props
+                // AvoidProps(tank);
+                if (Collided)
+                {
+                    timeout += 2500f;
+                    Collided = false;
+                }
         }
+        
+        if(random.Next(100) < 15)
+            Shoot(tank);
     }
 
     private Vector3 GetClosestEnemy(Tank tank)
@@ -79,37 +95,44 @@ public class AIActionTank : ActionTank
         Vector3 direction = Vector3.Normalize(target - tank.Position);
 
         // Update tank angle to face the target
-        tank.Angle = (float)Math.Atan2(-direction.X, direction.Z);
+        tank.Angle = (float)Math.Atan2(direction.X, direction.Z) + MathHelper.Pi;
 
         // Apply acceleration
         tank.Velocidad += tank.Acceleration;
 
         // Limit speed
         tank.Velocidad = MathHelper.Clamp(tank.Velocidad, 0, tank.MaxSpeed);
-
-        // Update tank position
-        tank.Position += direction * tank.Velocidad;
-
-        // Apply friction
-        tank.Velocidad *= (1 - tank.Friction);
-
-        // Update translation matrix
-        tank.Translation = Matrix.CreateTranslation(tank.Position);
     }
-
-    private void AvoidProps(Tank tank)
+    
+    public void Shoot(Tank tank)
     {
-        // Check and avoid map props
-        foreach (StaticProp prop in PlaneMap.Props)
+        if (!tank.hasShot)
         {
-            float distanceToProp = Vector3.Distance(tank.Position, prop.Position);
+            var degree = random.Next(40) * 0.2;
+            var bulletPosition = tank.Position;
+            var yawRadians = MathHelper.ToRadians(0f);
+            var pitchRadians = MathHelper.ToRadians((float)degree);
+            Vector3 bulletDirection;
 
-            if (distanceToProp < 5)
-            {
-                // Adjust tank position to avoid the prop
-                Vector3 awayFromProp = Vector3.Normalize(tank.Position - prop.Position);
-                tank.Position += awayFromProp * 2; // Move 2 units away from the prop
-            }
+
+            bulletDirection = Vector3.Transform(
+                    Vector3.Transform(
+                        tank.cannonBone.Transform.Forward,
+                        Matrix.CreateFromYawPitchRoll(yawRadians, pitchRadians, 0f)
+                    ),
+                    Matrix.CreateRotationY(tank.Angle));
+
+            var bullet = new Bullet(
+                tank.BulletModel,
+                tank.BulletEffect,
+                tank.BulletReference,
+                Matrix.CreateFromYawPitchRoll(yawRadians, -pitchRadians, 0f),
+                Matrix.CreateRotationY(tank.Angle),
+                bulletPosition,
+                bulletDirection);
+            tank.Bullets.Add(bullet);
+            tank.hasShot = true;
+            tank.shootTime = 1.25f;
         }
     }
 

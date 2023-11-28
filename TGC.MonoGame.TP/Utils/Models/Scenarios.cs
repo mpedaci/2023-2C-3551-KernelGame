@@ -10,7 +10,7 @@ public class Scenarios
 {
     public static readonly ScenaryReference Plane = new ScenaryReference(
         Props.PlaneScene,
-        new Vector3(-400f, 2f, 0f),
+        new Vector3(0f, 2f, 0f),
         new Vector3(400f, 2f, 0f),
         new List<Tuple<Vector3, Vector3>>
         {

@@ -22,7 +22,7 @@ public class PlayerActionTank : ActionTank
         _center = new Point(_graphicsDevice.PreferredBackBufferWidth / 2, _graphicsDevice.PreferredBackBufferHeight / 2);
         KeySense(elapsedTime, tank);
         ProcessMouse(elapsedTime, tank);
-        tank.TankHud.Update(tank.World, tank.Health, tank.shootTime);
+        tank.TankHud.Update(tank.World, tank.Health * 0.2f, tank.shootTime * 2);
     }
     
     public void KeySense(float elapsedTime, Tank tank)
@@ -98,7 +98,7 @@ public class PlayerActionTank : ActionTank
             bullet.Speed += tank.Velocidad;
             tank.Bullets.Add(bullet);
             tank.hasShot = true;
-            tank.shootTime = 0.25f;
+            tank.shootTime = 0.5f;
             // Music
             var instance = tank.BulletSoundEffect.CreateInstance();
             //Quizas podriamos hacer que el sonido sea mas fuerte si el tanque esta mas cerca

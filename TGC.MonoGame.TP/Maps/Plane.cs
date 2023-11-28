@@ -26,7 +26,7 @@ public class PlaneMap : Map
         Tanks = new List<Tank>();
 
         int count = 0;
-        Scenary.GetSpawnPoints(numberOfTanks, true)
+        Scenary.GetSpawnPoints(1, true)
             .ForEach(spawnPoint =>
             {
                 Tanks.Add(new Tank(AliesTank, spawnPoint, graphicsDevice, false, count, this));
